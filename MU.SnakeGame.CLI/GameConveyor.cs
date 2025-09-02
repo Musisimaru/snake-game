@@ -21,7 +21,7 @@ class GameConveyor
         {
             try
             {
-                await _processor.MoveNext();
+                _processor.MoveNext();
                 await _renderer.Render(_state);
             }
             catch (OperationCanceledException) when (ct.IsCancellationRequested) { }

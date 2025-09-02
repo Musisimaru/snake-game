@@ -1,8 +1,12 @@
+using System.Text;
+
 namespace MU.SnakeGame.CLI;
 
 public class ConsoleStateRenderer: IStateRenderer
 {
     private readonly (short width, short height) _size;
+    private const int Multiplier = 3;
+
     public ConsoleStateRenderer((short width, short height) size)
     {
         _size = size;
@@ -10,36 +14,57 @@ public class ConsoleStateRenderer: IStateRenderer
     public ValueTask Render(IState state, CancellationToken ct = default)
     {
         var word =  Enum.GetName(typeof(Direction), state.Direction);
-        
+
+        var frame = PrepareFrame(state);
         Console.Clear();
-        Console.WriteLine(word);
-        Console.WriteLine($"x: {state.Position.x}, y: {state.Position.y}\n(size {_size})");
-        RenderField(state);
+        Console.Write(frame);
         
         return ValueTask.CompletedTask;
     }
 
-    private void RenderField(IState state)
+    // TODO: Можно переделать на стримы и на StringBuilder
+    private StringBuilder RenderField(IState state)
     {
         var (x,y) = state.Position;
         var (width, height) = _size;
-        const int multiplier = 3;
-        
-        string emptyString = $"|{new string(' ', width*multiplier)}|";
+
+        string emptyString = $"\u2502{new string(' ', width*Multiplier)}\u2502";
         string.Intern(emptyString);
+
+        var field = new StringBuilder();
         
-        Console.WriteLine($"|{new string('\u203E', width*multiplier)}|");
+        field.AppendLine("┌" + new string('─', width*Multiplier) + "┐");
         for (int i = height-1; i >= 0; i--)
         {
             if (i != y)
             {
-                Console.WriteLine(emptyString);
+                field.AppendLine(emptyString);
                 continue;
             }
             
-            Console.WriteLine($"|{new string(' ', x*multiplier)} {blackSquare} {new string(' ', (width - x - 1)*multiplier)}|");
+            field.AppendLine($"\u2502{new string(' ', x*Multiplier)} {blackSquare} {new string(' ', (width - x - 1)*Multiplier)}\u2502");
         }
-        Console.WriteLine($" {new string('\u203E', width*multiplier)} ");
+        field.AppendLine("└" + new string('─', width*Multiplier) + "┘");
+        return field;
+    }
+
+    private StringBuilder RenderInfo(IState state)
+    {
+        var info = new StringBuilder();
+        var word =  Enum.GetName(typeof(Direction), state.Direction);
+        
+        info.AppendLine(word);
+        info.AppendLine($"x: {state.Position.x}, y: {state.Position.y}\n(size {_size})");
+        
+        return info;
+    }
+
+    private string PrepareFrame(IState state)
+    {
+        var frame = new StringBuilder();
+        frame.Append(RenderInfo(state));
+        frame.Append(RenderField(state));
+        return frame.ToString();
     }
     
     
