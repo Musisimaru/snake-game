@@ -4,11 +4,13 @@ class GameConveyor
 {
     private readonly IState _state;
     private readonly IStateRenderer _renderer;
+    private readonly IProcessor _processor;
 
-    public GameConveyor(IState state, IStateRenderer renderer)
+    public GameConveyor(IState state, IStateRenderer renderer, IProcessor processor)
     {
         _state = state;
         _renderer = renderer;
+        _processor = processor;
     }
     
     public async Task RunEveryAsync(TimeSpan period, CancellationToken ct = default)
@@ -19,7 +21,8 @@ class GameConveyor
         {
             try
             {
-                _renderer.Render(_state);
+                await _processor.MoveNext();
+                await _renderer.Render(_state);
             }
             catch (OperationCanceledException) when (ct.IsCancellationRequested) { }
             catch (Exception ex)

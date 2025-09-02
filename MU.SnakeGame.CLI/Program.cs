@@ -2,15 +2,17 @@
 
 class Program
 {
-    private static readonly GameState GameState = new();
+    private static readonly (short width, short height) _size = (100, 100);
+    private static readonly GameState GameState = new(_size);
     
     static async Task Main(string[] args)
     {
         using var cts = new CancellationTokenSource();
 
-        var renderer = new ConsoleStateRenderer();
-        var stateManager = new StateManager(GameState);
-        var gameConveyor = new GameConveyor(GameState, renderer);
+        var renderer = new ConsoleStateRenderer(_size);
+        var stateManager = new StateManager(GameState, _size);
+        var processor = new GameProcessor(GameState, stateManager, GameState); 
+        var gameConveyor = new GameConveyor(GameState, renderer, processor);
         var task = gameConveyor.RunEveryAsync(TimeSpan.FromSeconds(1), cts.Token);
         
 
