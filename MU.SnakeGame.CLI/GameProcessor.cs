@@ -8,7 +8,7 @@ public class GameProcessor(IState state, IStateManager stateManager, IChangeable
         var (x, y) = state.Position;
         switch (state.Direction)
         {
-            case Direction.Up: ++y ; break;
+            case Direction.Up: y++ ; break;
             case Direction.Down: y--; break;
             case Direction.Left: x--; break;
             case Direction.Right: x++; break;

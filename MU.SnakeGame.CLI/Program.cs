@@ -2,7 +2,7 @@
 
 class Program
 {
-    private static readonly (short width, short height) _size = (100, 100);
+    private static readonly (short width, short height) _size = (30, 30);
     private static readonly GameState GameState = new(_size);
     
     static async Task Main(string[] args)
