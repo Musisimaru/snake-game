@@ -1,18 +1,7 @@
 namespace MU.SnakeGame.CLI;
 
-class GameConveyor
+class GameConveyor(IState state, IStateRenderer renderer, IProcessor processor)
 {
-    private readonly IState _state;
-    private readonly IStateRenderer _renderer;
-    private readonly IProcessor _processor;
-
-    public GameConveyor(IState state, IStateRenderer renderer, IProcessor processor)
-    {
-        _state = state;
-        _renderer = renderer;
-        _processor = processor;
-    }
-    
     public async Task RunEveryAsync(TimeSpan period, CancellationToken ct = default)
     {
         using var timer = new PeriodicTimer(period);
@@ -21,8 +10,8 @@ class GameConveyor
         {
             try
             {
-                _processor.MoveNext();
-                await _renderer.Render(_state);
+                if (processor != null) _ = processor.MoveNext(ct);
+                await renderer.Render(state, ct);
             }
             catch (OperationCanceledException) when (ct.IsCancellationRequested) { }
             catch (Exception ex)
